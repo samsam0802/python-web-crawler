@@ -12,9 +12,9 @@ from detailImg import get_detail_image_urls
 from product_mapping import create_product_id, update_product_data_sql
 from productDetailInfoProvided import get_product_dtailinfo_provided, reset_product_detail_info_id
 from option import get_product_options, save_product_options
-from product_options_mapping import create_product_options_sql_with_validation  # 💡 새로 추가
+from product_options_mapping import create_product_options_sql_with_validation
 
-# undetected-chromedriver 설정 (기존 설정 유지)
+# undetected-chromedriver 설정
 options = uc.ChromeOptions()
 options.add_argument("--start-maximized")
 options.add_argument("--disable-blink-features=AutomationControlled")
@@ -42,7 +42,7 @@ try:
 
     try:
         # 상품 상세 페이지 클릭
-        element = driver.find_element(By.XPATH, "//*[@id='Contents']/ul[2]/li[2]")
+        element = driver.find_element(By.XPATH, "//*[@id='Contents']/ul[2]/li[3]")
         element.click()
         time.sleep(5)
 
@@ -73,8 +73,11 @@ try:
         # product_id 생성
         product_id = create_product_id(product_name)
 
-        # product_id > 0 경우: 새로운 product_name인 경우에만 크롤링 계속
+        # ✨ product_id > 0 경우: 새로운 product_name인 경우에만 모든 크롤링 진행
         if product_id > 0:
+            print(f"\n✅ 새로운 제품 발견! ID: {product_id}")
+            print("=" * 60)
+
             # 상품 SQL 파일 업데이트
             sql_statement = update_product_data_sql(
                 product_id=product_id,
@@ -83,44 +86,55 @@ try:
                 category_id=category_id,
                 product_name=product_name
             )
-            print(f"제품이 성공적으로 추가되었습니다. ID: {product_id}")
-        else:
-            print("이미 존재하는 제품명입니다.")
+            print(f"✓ 제품 기본 정보 저장 완료 (ID: {product_id})")
 
-        # 메인 이미지 SQL 파일 업데이트
-        update_product_main_images_sql(product_id, main_image_urls)
-        #### 병국 끝 ####
+            # 메인 이미지 SQL 파일 업데이트
+            update_product_main_images_sql(product_id, main_image_urls)
+            print(f"✓ 메인 이미지 저장 완료")
 
-        ### 소라 ###
-        # 상품정보 제공 고시 수집+저장
-        result, product_detail_info_id = get_product_dtailinfo_provided(driver,
-                                                                        filename="product_detailinfo_provided_sql.txt")
-
-        # 상품 상세 이미지 수집+저장
-        detail_image_urls = get_detail_image_urls(driver, "detail_image_urls.txt")
-        ### 소라 끝 ###
-
-        ### 민석 ###
-        # 상품 옵션 정보(옵션이미지, 옵션명, 옵션가격) 수집
-        print("\n상품 옵션 정보 수집 함수 호출...")
-        product_options = get_product_options(driver)
-
-        if product_options:
-            print(f"✓ {len(product_options)}개의 옵션이 수집되었습니다.")
-
-            # 옵션 정보 텍스트 파일 저장
-            save_product_options(product_options, "product_options.txt")
-
-            # 💡 옵션 SQL INSERT 문 생성 및 저장
-            print("\n옵션 SQL 생성 함수 호출...")
-            create_product_options_sql_with_validation(
-                product_id=product_id,
-                product_options=product_options,
-                filename="product_options_sql.txt"
+            ### 소라 ###
+            # 상품정보 제공 고시 수집+저장
+            print("\n[소라] 상품정보 제공 고시 수집 중...")
+            result, product_detail_info_id = get_product_dtailinfo_provided(
+                driver,
+                filename="product_detailinfo_provided_sql.txt"
             )
+
+            # 상품 상세 이미지 수집+저장
+            print("[소라] 상세 이미지 수집 중...")
+            detail_image_urls = get_detail_image_urls(driver, "detail_image_urls.txt")
+            ### 소라 끝 ###
+
+            ### 민석 ###
+            # 상품 옵션 정보(옵션이미지, 옵션명, 옵션가격) 수집
+            print("\n[민석] 상품 옵션 정보 수집 시작...")
+            product_options = get_product_options(driver)
+
+            if product_options:
+                print(f"✓ {len(product_options)}개의 옵션이 수집되었습니다.")
+
+                # 옵션 정보 텍스트 파일 저장
+                save_product_options(product_options, "product_options.txt")
+
+                # 옵션 SQL INSERT 문 생성 및 저장
+                print("[민석] 옵션 SQL 생성 중...")
+                create_product_options_sql_with_validation(
+                    product_id=product_id,
+                    product_options=product_options,
+                    filename="product_options_sql.txt"
+                )
+            else:
+                print("⚠ 수집된 옵션이 없습니다.")
+            ### 민석 끝 ###
+
+            print("=" * 60)
+            print(f"✅ Product ID {product_id} 전체 데이터 수집 완료!\n")
+
         else:
-            print("⚠ 수집된 옵션이 없습니다.")
-        ### 민석 끝 ###
+            print(f"\n⚠ 이미 존재하는 제품명입니다: {product_name}")
+            print("   크롤링을 건너뜁니다.\n")
+
+        #### 병국 끝 ####
 
         #################### 상품 데이터 수집 끝 ######################
 
