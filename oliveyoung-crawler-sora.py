@@ -88,6 +88,7 @@ try:
         update_product_main_images_sql(product_id, main_image_urls)
         #### 병국 ####
 
+
         ### 소라 ###
         # 상품정보 제공 고시 수집+저장
         product_info, product_detail_info_id = get_product_dtailinfo_provided(driver, filename="product_detailinfo_provided_sql.txt")

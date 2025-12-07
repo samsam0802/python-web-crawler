@@ -101,7 +101,7 @@ def get_product_dtailinfo_provided(driver, filename: str = None):
 
     try:
         _product_detail_info_id_counter += 1
-        current_id = _product_detail_info_id_counter
+        product_detail_info_id = _product_detail_info_id_counter
 
         wait = WebDriverWait(driver, 10)
 
@@ -139,13 +139,13 @@ def get_product_dtailinfo_provided(driver, filename: str = None):
         columns = ', '.join(FIELD_MAP.values())
         values = ', '.join(ordered_values)
 
-        sql = f"INSERT INTO product_detail_info (id, {columns}, created_at, updated_at)\nVALUES ({current_id}, {values}, NOW(), NOW());\n\n"
+        sql = f"INSERT INTO product_detail_info (id, {columns}, created_at, updated_at)\nVALUES ({product_detail_info_id}, {values}, NOW(), NOW());\n\n"
 
         if filename:
             with open(filename, "a", encoding='utf-8') as f:
                 f.write(sql)
 
-        return product_info, current_id
+        return product_info, product_detail_info_id
 
     except Exception as e:
         print("상품정보 제공고시 수집 실패:", e)
