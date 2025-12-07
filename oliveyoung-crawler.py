@@ -5,12 +5,12 @@ import traceback
 
 from brand_mapping import get_brand_id
 from category_mapping import get_category_id
-from mainImgCol import save_urls_to_file, get_main_image_urls
+from mainImgCol import get_main_image_urls
 from main_images_mapping import update_product_main_images_sql
-from productInfo import print_product_info, save_product_info, get_product_basic_info
+from productInfo import print_product_info, get_product_basic_info
 from detailImg import get_detail_image_urls
 from product_mapping import create_product_id, update_product_data_sql
-from productDetailInfoProvided import get_product_dtailinfo_provided, get_product_dtailinfo_provided, reset_product_detail_info_id
+from productDetailInfoProvided import get_product_dtailinfo_provided, reset_product_detail_info_id
 
 # undetected-chromedriver 설정 (기존 설정 유지)
 options = uc.ChromeOptions()
@@ -48,6 +48,8 @@ try:
         detail_url = driver.current_url
         print(f"상세 페이지 URL: {detail_url}")
 
+
+        # 상품 데이터 수집 시작
         # 상품 이미지 url 수집
         print("이미지 수집 함수 호출...")
         main_image_urls = get_main_image_urls(driver, 3)  # 3개로 명시적 지정
@@ -92,6 +94,8 @@ try:
         # 상품 상세 이미지 수집+저장
         detail_image_urls = get_detail_image_urls(driver, "detail_image_urls.txt")
         # create_detail_image_sql(product_id, detail_image_urls, "detail_image_sql.txt");
+
+        # 상품 데이터 수집 끝
 
         print("\n뒤로가기 시도 중...")
 
