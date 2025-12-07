@@ -4,7 +4,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 
 
-def get_detail_image_urls(driver, filename: str = None):
+def get_detail_image_urls(driver, product_id: int, filename: str = None):
     """
     상품 상세 이미지 가져오는 함수
     """
@@ -46,19 +46,18 @@ def get_detail_image_urls(driver, filename: str = None):
 
         print(f"상세 이미지 {len(detail_urls)}개 수집 완료")
 
-        # 파일 저장
-        if filename and detail_urls:
-            try:
-                with open(filename, 'a', encoding='utf-8') as f:
-                    # 상품 구분 줄 추가
-                    f.write("\n" + "=" * 50 + "\n")
-                    f.write("상품 상세 이미지 URL\n")
-                    f.write("=" * 50 + "\n")
-                    for i, url in enumerate(detail_urls, start=1):
-                        f.write(f"{i}. {url}\n")
-                print(f"상세 이미지 URL이 '{filename}'에 번호와 함께 저장되었습니다.")
-            except Exception as e:
-                print(f"상세 이미지 URL 저장 중 오류: {e}")
+        # INSERT문 생성
+        if detail_urls:
+            sql_lines = []
+            for idx, url in enumerate(detail_urls):
+                sql_lines.append(f"({product_id}, {idx}, '{url}')")
+            sql_text = "INSERT INTO product_detail_images (product_id, display_order, image_url) VALUES\n"
+            sql_text += ",\n".join(sql_lines) + ";\n\n"
+
+            if filename:
+                with open(filename, "a", encoding="utf-8") as f:
+                    f.write(sql_text)
+                print(f"상세 이미지 INSERT문이 '{filename}'에 저장되었습니다.")
 
         return detail_urls if detail_urls else None
 
