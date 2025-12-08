@@ -11,7 +11,7 @@ from main_images_mapping import update_product_main_images_sql
 from productInfo import print_product_info, get_product_basic_info
 from detailImg import get_detail_image_urls
 from product_mapping import create_product_id, update_product_data_sql, create_product_id_with_transaction
-from productDetailInfoProvided import get_product_dtailinfo_provided, reset_product_detail_info_id
+from productDetailInfoProvided import get_product_dtailinfo_provided
 from option import get_product_options, save_product_options # 민석 추가, 저장 함수 추가
 from product_options_mapping import create_product_options_sql, create_product_options_sql_with_validation
 
